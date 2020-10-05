@@ -38,5 +38,8 @@ for link in links:
     article = articles.Article(link["href"], settings)
     html = article.toString(ARTICLE_TEMPLATE)
     print("SUCCESSFULLY PARSED: \t", link["href"])
+    if((datetime.today()-article.date).days > DAYS_INTERVAL):
+        print("This article is OLD")
+        break
     text_file.write(html)
 text_file.close()
