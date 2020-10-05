@@ -2,47 +2,75 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import base64
+from datetime import datetime
 
 
 class Settings:
-    def __init__(self, headerSelector, source, annotationSelector, imageSelector, textSelector,  dateCallback=None, removeSelector="script, style, meta, form, button"):
+    def __init__(self, headerSelector, sourceName, annotationSelector, imageSelector, textSelector,  dateCallback=None, removeSelector="script, style, meta, form, button"):
         self.headerSelector = headerSelector
-        self.source = source,
+        self.source = sourceName
         self.annotationSelector = annotationSelector
         self.imageSelector = imageSelector
         self.textSelector = textSelector
         self.dateCallback = dateCallback
-        self.removeSelector=removeSelector
+        self.removeSelector = removeSelector
+
+
 class Article:
     def __init__(self, url, settings):
         self.url = url
         self.__settings = settings
+        self.date=datetime.today()
         self.__parse()
+
     def __parse(self):
         req = requests.get(self.url)
         soup = BeautifulSoup(req.text, "lxml")
         self.header = soup.select_one(self.__settings.headerSelector).text
-        self.source = self.__settings.source
+        self.sourceName = self.__settings.source
         self.annotation = soup.select_one(
             self.__settings.annotationSelector).text
         self.imageUrl = self.__find_url(
             str(soup.select_one(self.__settings.imageSelector)))
-        self.text = self.__cleanup(soup.select_one(self.__settings.textSelector))
+        self.image = imageUrl2Base64(self.imageUrl)
+        self.text = self.__cleanup(
+            soup.select_one(self.__settings.textSelector))
+        if(self.__settings.dateCallback is not None):
+            self.__settings.dateCallback(self, soup)
+
     def __find_url(self, text):
         result = re.search(
             r'''https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)''', text)
         return result.group(0)
+
     def __cleanup(self, soup):
+        print("Cleaning text")
         for s in soup.select(self.__settings.removeSelector):
             s.extract()
         for s in soup.select("a"):
             s.unwrap()
+        for s in soup.select("img"):
+            s["src"] = imageUrl2Base64(s["src"])
         return str(soup.prettify())
-    def imageUrl2Base64(self, url):
-        print("Getting image ", url)
-        req = requests.get(url, stream=True)
-        req.raise_for_status()
-        chunks=bytearray()
-        for chunk in req.iter_content(chunk_size=50000):
-            chunks+=chunk
-        return base64.b64encode(chunks)
+
+    def toString(self, template):
+        return template.format(header=self.header,
+         annotation=self.annotation,
+         imgEncoded=self.image,
+         text=self.text,
+         source=self.sourceName,
+         date=self.date)
+
+
+def imageUrl2Base64(url):
+    if url=='':
+        return ''
+    if not url.startswith("http"):
+        return ''
+    print("Getting image ", url)
+    req = requests.get(url)
+    return "data:" + req.headers['Content-Type'] + ";" + "base64," + base64.b64encode(req.content).decode("utf-8")
+def getDateFromString(s):
+    res = re.search(r'''\/\d{4}\/\d{2}\/\d{2}\/''', s)
+    dt = datetime.strptime(res.group(0), "/%Y/%m/%d/")
+    return dt
