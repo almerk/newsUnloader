@@ -1,13 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Выгрузка новостей</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 14pt;
+            height: 100%;
+            width: 100%;
+        }
+
+        header {
+            font-weight: 800;
+            font-size: 1.8em;
+            font-style: italic;
+            color: #008737;
+        }
+
+        p.annotation {
+            font-style: italic;
+        }
+
+        footer {
+            font-style: italic;
+            text-align: end;
+        }
+
+        body {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            width: 100%;
+        }
+
+        body>nav {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        body>main {
+            flex-grow: 1;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        img {
+            max-width: 90%;
+            height: auto;
+        }
+
+        p {
+            margin: .5em 0;
+        }
+
+        nav>a {
+            display: -webkit-box;
+            width: 100%;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-wrap: break-word;
+            margin-bottom: .2em;
+        }
+        article>figure>img{
+            max-width:5em;
+            height: auto;
+        }
+    </style>
 </head>
+
 <body>
     <main>
-        {articles}
+        <article>
+            <header>{header}</header>
+            <p class="annotation">{annotation}</p>
+            <figure> <img src="{imgEncoded}"> </figure>
+            <section>{text}</section>
+            <footer>{source}, {date:%d.%m.%Y}</footer>
+        </article>
+        <article>
+            <header>{header}</header>
+            <p class="annotation">{annotation}</p>
+            <figure> <img src="{imgEncoded}"> </figure>
+            <section>{text}</section>
+            <footer>{source}, {date:%d.%m.%Y}</footer>
+        </article>
     </main>
 </body>
+<script>
+    document.body.insertBefore(document.createElement("nav"), document.querySelector("main"));
+    let i = 0; document.querySelectorAll("header").forEach(el => {
+        const id = `article-${i}`;
+        i++;
+        el.id = id;
+        let a = document.createElement("a");
+        a.href = `#${id}`;
+        document.querySelector("nav").append(a);
+        a.innerHTML = el.innerHTML;
+    });
+</script>
+
 </html>
