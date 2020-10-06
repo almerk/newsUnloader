@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import base64
 from datetime import datetime
+from urllib.parse import urljoin
 
 
 class Settings:
@@ -30,18 +31,20 @@ class Article:
         self.sourceName = self.__settings.source
         self.annotation = soup.select_one(
             self.__settings.annotationSelector).text
-        self.imageUrl = self.__find_url(
-            str(soup.select_one(self.__settings.imageSelector)))
-        self.image = imageUrl2Base64(self.imageUrl)
+        self.imageUrl = self.__find_url(soup.select_one(self.__settings.imageSelector))
+        self.image = imageUrl2Base64(urljoin(self.url, self.imageUrl)) if self.imageUrl !='' else ''
         self.text = self.__cleanup(
             soup.select_one(self.__settings.textSelector))
         if(self.__settings.dateCallback is not None):
             self.__settings.dateCallback(self, soup)
 
-    def __find_url(self, text):
-        result = re.search(
-            r'''https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)''', text)
-        return result.group(0)
+    def __find_url(self, link):
+        if(not link.has_attr("src")):
+            result = re.search(
+                r'''https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)''', str(link))
+            return result.group(0) if(result is not None) else ''
+        else:
+            return link["src"]
 
     def __cleanup(self, soup):
         print("Cleaning text")
@@ -49,8 +52,11 @@ class Article:
             s.extract()
         for s in soup.select("a"):
             s.unwrap()
+        for tag in soup():
+            for attribute in ["class", "id", "name", "style"]:
+                del tag[attribute]
         for s in soup.select("img"):
-            s["src"] = imageUrl2Base64(s["src"])
+            s["src"] = imageUrl2Base64(urljoin(self.url, s["src"]) )
         return str(soup.prettify())
 
     def toString(self, template):
