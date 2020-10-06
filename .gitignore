@@ -1,0 +1,4 @@
+.vscode/.ropeproject/objectdb
+*.pyc
+*.html
+*.tmp

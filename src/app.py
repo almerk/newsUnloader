@@ -3,43 +3,35 @@ from bs4 import BeautifulSoup
 import articles
 from datetime import datetime
 import os
+import settings
 
-DAYS_INTERVAL=7
-ARTICLE_TEMPLATE='''
-<article> 
-    <header>{header}</header>
-    <p class="annotation">{annotation}</p>
-    <figure> <img src="{imgEncoded}"> </figure>
-    <section>{text}</section>
-    <footer>{source}, {date:%d.%m.%Y}</footer>
-</article>
-'''
-def xakepDateFunc(article, soup):
-    article.date=articles.getDateFromString(article.url)
 
-settings = articles.Settings(
-    headerSelector="h1.post-title", 
-    sourceName="xakep.ru", 
-    annotationSelector="article.post p", 
-    imageSelector="a.bdaia-featured-img-cover",
-    textSelector="article.post", 
-    removeSelector="script, style, meta, form, button, footer, div#current_issue_box", 
-    dateCallback=xakepDateFunc)
 filename = '''news_{date:%Y%m%d_%H%M}.html'''.format(date=datetime.today())
-if os.path.exists("demofile.txt"):
-  os.remove("demofile.txt")
-req = requests.get("https://xakep.ru/")
-soup = BeautifulSoup(req.text, "lxml")
-links = soup.select('.bd-main .entry-title > a')
-print('Number of article links:', len(links))
-text_file = open(filename, "a", encoding='utf-8')
-for link in links:
-    print("Start parsing ", link["href"])
-    article = articles.Article(link["href"], settings)
-    html = article.toString(ARTICLE_TEMPLATE)
-    print("SUCCESSFULLY PARSED: \t", link["href"])
-    if((datetime.today()-article.date).days > DAYS_INTERVAL):
-        print("This article is OLD")
-        break
-    text_file.write(html)
-text_file.close()
+temp_filename = filename+".tmp"
+if os.path.exists(temp_filename):
+  os.remove(temp_filename)
+for source in settings.SOURCES:
+    text_file = open(temp_filename, "a", encoding='utf-8')
+    req = requests.get(source["url"])
+    soup = BeautifulSoup(req.text, "lxml")
+    links = soup.select(source['linkSelector'])
+    print('Number of article links:', len(links))
+    for link in links:
+        print("Start parsing ", link["href"])
+        article = articles.Article(link["href"], source["settings"])
+        html = article.toString(settings.ARTICLE_TEMPLATE)
+        print("SUCCESSFULLY PARSED: \t", link["href"])
+        if((datetime.today()-article.date).days > settings.DAYS_INTERVAL):
+            print("This article is OLD. Stopped searching on this source")
+            break
+        text_file.write(html)
+    text_file.close()
+
+articlesFile = open(temp_filename, encoding='utf-8')
+result = settings.ResultTemplate.format(articles = articlesFile.read())
+articlesFile.close()
+resultFile = open(filename, "w", encoding='utf-8')
+resultFile.write(result)
+resultFile.close()
+os.remove(temp_filename)
+print("News unload saved in '%s'"%filename)
