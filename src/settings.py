@@ -3,7 +3,8 @@ from datetime import datetime
 
 DAYS_INTERVAL=7
 ARTICLE_TEMPLATE='''
-<article> 
+<article>
+    <button>Удалить статью</button>
     <header>{header}</header>
     <p class="annotation">{annotation}</p>
     <figure> <img src="{imgEncoded}"> </figure>
@@ -26,7 +27,8 @@ SOURCES = [
     imageSelector="a.bdaia-featured-img-cover",
     textSelector="article.post", 
     removeSelector="script, style, meta, form, button, footer, div#current_issue_box", 
-    dateCallback=xakepDateFunc)},
+    dateCallback=xakepDateFunc,
+    textRemoveSelector=["p"])},
     {'urls':['https://www.securitylab.ru/news/page1_1.php','https://www.securitylab.ru/news/page1_2.php','https://www.securitylab.ru/news/page1_3.php','https://www.securitylab.ru/news/page1_4.php','https://www.securitylab.ru/news/page1_5.php'],
      'linkSelector': 'a.article-card.inline-card',
      'settings': articles.Settings(
@@ -41,5 +43,5 @@ SOURCES = [
 
 
 __resultTemplateFile=open("template.html", encoding = 'utf-8')
-ResultTemplate = __resultTemplateFile.read()
+ResultTemplate = __resultTemplateFile.read().replace("{","{{").replace("}","}}").replace("{{{{","{").replace("}}}}","}")
 __resultTemplateFile.close()

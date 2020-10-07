@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 
 
 class Settings:
-    def __init__(self, headerSelector, sourceName, annotationSelector, imageSelector, textSelector,  dateCallback=None, removeSelector="script, style, meta, form, button"):
+    def __init__(self, headerSelector, sourceName, annotationSelector, imageSelector, textSelector,  dateCallback=None, removeSelector="script, style, meta, form, button", textRemoveSelector=[]):
         self.headerSelector = headerSelector
         self.source = sourceName
         self.annotationSelector = annotationSelector
@@ -15,6 +15,7 @@ class Settings:
         self.textSelector = textSelector
         self.dateCallback = dateCallback
         self.removeSelector = removeSelector
+        self.textRemoveSelector = textRemoveSelector
 
 
 class Article:
@@ -57,6 +58,8 @@ class Article:
                 del tag[attribute]
         for s in soup.select("img"):
             s["src"] = imageUrl2Base64(urljoin(self.url, s["src"]) )
+        for r in self.__settings.textRemoveSelector:
+            soup.select_one(r).extract()
         return str(soup.prettify())
 
     def toString(self, template):

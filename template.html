@@ -50,6 +50,11 @@
             flex-grow: 1;
             overflow-y: auto;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
 
         img {
@@ -59,6 +64,8 @@
 
         p {
             margin: .5em 0;
+            text-indent: 1.25em;
+            line-height: 1.5em;
         }
 
         nav>a {
@@ -72,42 +79,42 @@
             word-wrap: break-word;
             margin-bottom: .2em;
         }
-        article>figure>img{
-            max-width:5em;
+
+        article>figure>img {
+            max-width: 6em;
             height: auto;
+            float: left;
+            margin-right: 1em;
+
+        }
+
+        main>article {
+            margin-bottom: 1em;
         }
     </style>
 </head>
 
 <body>
     <main>
-        <article>
-            <header>{header}</header>
-            <p class="annotation">{annotation}</p>
-            <figure> <img src="{imgEncoded}"> </figure>
-            <section>{text}</section>
-            <footer>{source}, {date:%d.%m.%Y}</footer>
-        </article>
-        <article>
-            <header>{header}</header>
-            <p class="annotation">{annotation}</p>
-            <figure> <img src="{imgEncoded}"> </figure>
-            <section>{text}</section>
-            <footer>{source}, {date:%d.%m.%Y}</footer>
-        </article>
+        {{articles}}
     </main>
 </body>
 <script>
     document.body.insertBefore(document.createElement("nav"), document.querySelector("main"));
-    let i = 0; document.querySelectorAll("header").forEach(el => {
+    let i = 0; document.querySelectorAll("main>article").forEach(el => {
         const id = `article-${i}`;
         i++;
         el.id = id;
         let a = document.createElement("a");
         a.href = `#${id}`;
         document.querySelector("nav").append(a);
-        a.innerHTML = el.innerHTML;
+        a.innerHTML = el.querySelector("header").innerHTML;
+        el.querySelector("button").addEventListener("click", () => {
+            document.querySelector(`#${id}`).remove();
+            document.querySelector(`a[href="#${id}"]`).remove();
+        });
     });
+    alert("Не забудьте сохранить веб страницу после изменений!")
 </script>
 
 </html>
