@@ -1,15 +1,15 @@
-import articles
+﻿import articles
 from datetime import datetime
 
 DAYS_INTERVAL=7
 ARTICLE_TEMPLATE='''
-<article>
+<article contenteditable="true">
     <button>Удалить статью</button>
     <header>{header}</header>
     <p class="annotation">{annotation}</p>
     <figure> <img src="{imgEncoded}"> </figure>
     <section>{text}</section>
-    <footer>{source}, {date:%d.%m.%Y}</footer>
+    <footer>{source}, <time>{date:%d.%m.%Y}</time></footer>
 </article>'''
 def xakepDateFunc(article, soup):
     article.date=articles.getDateFromString(article.url)
@@ -26,7 +26,7 @@ SOURCES = [
     annotationSelector="article.post p", 
     imageSelector="a.bdaia-featured-img-cover",
     textSelector="article.post", 
-    removeSelector="script, style, meta, form, button, footer, div#current_issue_box", 
+    removeSelector="script, iframe, style, meta, form, button, footer, div#current_issue_box", 
     dateCallback=xakepDateFunc,
     textRemoveSelector=["p"])},
     {'urls':['https://www.securitylab.ru/news/page1_1.php','https://www.securitylab.ru/news/page1_2.php','https://www.securitylab.ru/news/page1_3.php','https://www.securitylab.ru/news/page1_4.php','https://www.securitylab.ru/news/page1_5.php'],
@@ -37,7 +37,7 @@ SOURCES = [
     annotationSelector="div.articl-text p", 
     imageSelector="div.articl-text img",
     textSelector='div[itemprop="description"]', 
-    removeSelector="script, style, meta, form, button, footer", 
+    removeSelector="script, iframe, style, meta, form, button, footer", 
     dateCallback=securitylabDateFunc)}
     ]
 

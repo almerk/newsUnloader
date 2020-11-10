@@ -100,20 +100,23 @@
     </main>
 </body>
 <script>
-    document.body.insertBefore(document.createElement("nav"), document.querySelector("main"));
-    let i = 0; document.querySelectorAll("main>article").forEach(el => {
-        const id = `article-${i}`;
-        i++;
-        el.id = id;
-        let a = document.createElement("a");
-        a.href = `#${id}`;
-        document.querySelector("nav").append(a);
-        a.innerHTML = el.querySelector("header").innerHTML;
-        el.querySelector("button").addEventListener("click", () => {
-            document.querySelector(`#${id}`).remove();
-            document.querySelector(`a[href="#${id}"]`).remove();
-        });
-    });
+    if(document.querySelector("body>nav")==null) {
+			document.body.insertBefore(document.createElement("nav"), document.querySelector("main"));
+			let i = 0; document.querySelectorAll("main>article").forEach(el => {
+			const id = `article-${i}`;
+			i++;
+			el.id = id;
+			let a = document.createElement("a");
+			a.href = `#${id}`;
+			document.querySelector("nav").append(a);
+			a.innerHTML = el.querySelector("header").innerHTML;
+			el.querySelector("button").addEventListener("click", () => {
+				document.querySelector(`#${id}`).remove();
+				document.querySelector(`a[href="#${id}"]`).remove();
+			});
+		});
+	}
+	
     alert("Не забудьте сохранить веб страницу после изменений!")
 </script>
 

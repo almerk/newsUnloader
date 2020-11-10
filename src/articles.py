@@ -54,7 +54,7 @@ class Article:
         for s in soup.select("a"):
             s.unwrap()
         for tag in soup():
-            for attribute in ["class", "id", "name", "style"]:
+            for attribute in ["class", "id", "name", "style", "srcset"]:
                 del tag[attribute]
         for s in soup.select("img"):
             s["src"] = imageUrl2Base64(urljoin(self.url, s["src"]) )
