@@ -77,8 +77,11 @@ def imageUrl2Base64(url):
     if not url.startswith("http"):
         return ''
     print("Getting image ", url)
-    req = requests.get(url)
-    return "data:" + req.headers['Content-Type'] + ";" + "base64," + base64.b64encode(req.content).decode("utf-8")
+    try:
+        req = requests.get(url)
+        return "data:" + req.headers['Content-Type'] + ";" + "base64," + base64.b64encode(req.content).decode("utf-8")
+    except BaseException:
+        return ""
 def getDateFromString(s):
     res = re.search(r'''\/\d{4}\/\d{2}\/\d{2}\/''', s)
     dt = datetime.strptime(res.group(0), "/%Y/%m/%d/")
