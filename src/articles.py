@@ -40,6 +40,8 @@ class Article:
             self.__settings.dateCallback(self, soup)
 
     def __find_url(self, link):
+        if(link is None):
+             return ''
         if(not link.has_attr("src")):
             result = re.search(
                 r'''https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)''', str(link))
