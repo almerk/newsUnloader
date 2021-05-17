@@ -30,8 +30,8 @@ class Article:
         soup = BeautifulSoup(req.text, "lxml")
         self.header = soup.select_one(self.__settings.headerSelector).text
         self.sourceName = self.__settings.source
-        self.annotation = soup.select_one(
-            self.__settings.annotationSelector).text
+        annotation = soup.select_one(self.__settings.annotationSelector)
+        self.annotation = '' if (annotation is None) else annotation.text
         self.imageUrl = self.__find_url(soup.select_one(self.__settings.imageSelector))
         self.image = imageUrl2Base64(urljoin(self.url, self.imageUrl)) if self.imageUrl !='' else ''
         self.text = self.__cleanup(
